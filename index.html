@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural RPS | AI Project</title>
+    <style>
+        /* CSS - The Design */
+        :root {
+            --bg: #0f172a;
+            --accent: #38bdf8;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .app-container {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 350px;
+        }
+
+        h1 { font-weight: 300; letter-spacing: 2px; margin-bottom: 0.5rem; }
+        .ai-tag { font-size: 0.7rem; background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .score-num { display: block; font-size: 2rem; font-weight: bold; color: var(--accent); }
+
+        .display {
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            min-height: 60px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        #result-text { font-weight: bold; margin-bottom: 5px; display: block; }
+        #detail-text { font-size: 0.8rem; opacity: 0.6; }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+
+        button {
+            background: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: transform 0.2s, background 0.2s;
+            flex: 1;
+        }
+
+        button:hover { transform: translateY(-3px); background: var(--accent); }
+        button:active { transform: scale(0.95); }
+
+        .footer-note { margin-top: 2rem; font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <h1>NEURAL RPS <span class="ai-tag">AI</span></h1>
+        
+        <div class="scoreboard">
+            <div>PLAYER <span id="p-score" class="score-num">0</span></div>
+            <div>CPU <span id="c-score" class="score-num">0</span></div>
+        </div>
+
+        <div class="display">
+            <span id="result-text">READY TO PLAY?</span>
+            <span id="detail-text">The AI is watching your patterns...</span>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="play('rock')">✊</button>
+            <button onclick="play('paper')">✋</button>
+            <button onclick="play('scissors')">✌️</button>
+        </div>
+
+        <div class="footer-note">Pattern Recognition Engine v1.0</div>
+    </div>
+
+    <script>
+        /* JavaScript - The Logic */
+        let playerScore = 0;
+        let aiScore = 0;
+        
+        // This object tracks how many times you pick each option
+        const playerHistory = { rock: 0, paper: 0, scissors: 0 };
+
+        function play(playerMove) {
+            // 1. Record the player's move
+            playerHistory[playerMove]++;
+
+            // 2. AI decides move based on your history
+            const aiMove = getAiMove();
+
+            // 3. Determine winner
+            let result = "";
+            if (playerMove === aiMove) {
+                result = "DRAW";
+            } else if (
+                (playerMove === 'rock' && aiMove === 'scissors') ||
+                (playerMove === 'paper' && aiMove === 'rock') ||
+                (playerMove === 'scissors' && aiMove === 'paper')
+            ) {
+                result = "YOU WIN";
+                playerScore++;
+            } else {
+                result = "AI WINS";
+                aiScore++;
+            }
+
+            // 4. Update UI
+            document.getElementById('p-score').innerText = playerScore;
+            document.getElementById('c-score').innerText = aiScore;
+            document.getElementById('result-text').innerText = result;
+            document.getElementById('detail-text').innerText = `You: ${playerMove} | AI: ${aiMove}`;
+            
+            // Color feedback
+            const resDisplay = document.getElementById('result-text');
+            resDisplay.style.color = result === "YOU WIN" ? "#4ade80" : (result === "AI WINS" ? "#f87171" : "#fff");
+        }
+
+        function getAiMove() {
+            const totalMoves = playerHistory.rock + playerHistory.paper + playerHistory.scissors;
+
+            // If it's early in the game, be random
+            if (totalMoves < 3) {
+                const moves = ['rock', 'paper', 'scissors'];
+                return moves[Math.floor(Math.random() * 3)];
+            }
+
+            // Predictive Logic: Counter the move the player picks most
+            let mostUsed = 'rock';
+            if (playerHistory.paper > playerHistory.rock) mostUsed = 'paper';
+            if (playerHistory.scissors > playerHistory[mostUsed]) mostUsed = 'scissors';
+
+            if (mostUsed === 'rock') return 'paper';
+            if (mostUsed === 'paper') return 'scissors';
+            return 'rock';
+        }
+    </script>
+</body>
+</html>
